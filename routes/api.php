@@ -26,21 +26,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::controller(AuthController::class)->group(function () {
-    Route::post('/register', 'register');
-    Route::post('/login', 'login');
-    Route::post('/forgot', 'forgot');
-    Route::post('/users/verify-otp-forgot',  'verifyOtpForgot');
-    Route::post('/reset', 'reset');
-    Route::post('/users/verify-otp',  'verifyOtpRegister');
-    Route::post('/users/new-otp',  'newOtp');
-    Route::get('/users/profile',  'profile');
-    Route::post('/logout',  'logout');
-    Route::post('check/password', 'checkPassword');
-    Route::post('change/password', 'changePassword');
-});
-Route::get('/get-onboarding-target',[ValueHomeController::class, 'getTargetOnBoarding']);
-
 
 Route::middleware('auth:api')->group(function () {
     Route::controller(PacketController::class)->group(function () {
@@ -66,19 +51,4 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('/add-and-patch-target', 'addTarget');
         Route::get('/get-score-toefl', 'getLevelUser');
     });
-
-    Route::resource('/randomword', RandomWordController::class);
-    Route::resource('/quizs',QuizController::class);
-    Route::resource('/quiztypes',QuizTypeController::class);
-    Route::resource('/games',GameController::class);
-    Route::resource('/gameclaims',GameClaimController::class);
-    Route::resource('/quizclaims',QuizEnrollController::class);
-    Route::resource('/leaderboard',QuizGameScoreController::class);
-    Route::resource('/gameanswer',GameAnswerController::class);
-    Route::resource('/quizanswer',QuizAnswerController::class);
-    Route::resource('/quizgameresult',QuizResultController::class);
-    Route::resource('/randomword',RandomWordController::class);
-    Route::resource('/scrambledword',ScrambledWordController::class);
-    Route::resource('/pairingclaims',PairingClaimController::class);
-    Route::resource('/foryou', ForYouController::class);
 });
