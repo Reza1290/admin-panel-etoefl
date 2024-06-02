@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  web_service:
+    build:
+      context: ./web_service
+      dockerfile: Dockerfile
+    container_name: web_service
+    working_dir: /var/www/html
+    ports:
+      - "1291:9000"
+    volumes:
+      - /var/www/toefl/web_service/:/var/www/html
+      - /var/www/toefl/web_service/.env:/var/www/html/.env
+    networks:
+      - toefl_network
+    depends_on:
+      - node_web
+  
+  user_service:
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile
+    container_name: user_service
+    working_dir: /var/www/html
+    ports:
+      - "1292:9000"
+    volumes:
+      - /var/www/toefl/user_service/:/var/www/html
+      - /var/www/toefl/user_service/.env:/var/www/html/.env
+    networks:
+      - toefl_network
+    depends_on:
+      - node_user
+
+  simulation_service:
+    build:
+      context: ./simulation_service
+      dockerfile: Dockerfile
+    container_name: simulation_service
+    working_dir: /var/www/html
+    ports:
+      - "1293:9000"
+    volumes:
+      - /var/www/toefl/simulation_service/:/var/www/html
+      - /var/www/toefl/simulation_service/.env:/var/www/html/.env
+    networks:
+      - toefl_network
+
+  game_service:
+    build:
+      context: ./game_service
+      dockerfile: Dockerfile
+    container_name: game_service
+    working_dir: /var/www/html
+    ports:
+      - "1294:9000"
+    volumes:
+      - /var/www/toefl/game_service/:/var/www/html
+      - /var/www/toefl/game_service/.env:/var/www/html/.env
+    networks:
+      - toefl_network
+
+  node_web:
+    image: node:20
+    container_name: node_web
+    working_dir: /var/www/html
+    volumes:
+      - /var/www/toefl/web_service/:/var/www/html
+    networks:
+      - toefl_network
+    command: >
+      sh -c "npm install &&
+  
+             npm run build"
+  node_user:
+    image: node:20
+    container_name: node_user
+    working_dir: /var/www/html
+    volumes:
+      - /var/www/toefl/user_service/:/var/www/html
+    networks:
+      - toefl_network
+    command: >
+      sh -c "npm install &&
+             npm run build"
+
+  nginx:
+    image: nginx:1.24
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/html
+      - /var/www/toefl/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /var/www/toefl/nginx/ciptakode.crt:/etc/ssl/certs/ciptakode.crt
+      - /var/www/toefl/nginx/ciptakode.key:/etc/ssl/private/ciptakode.key
+    networks:
+      - toefl_network
+    depends_on:
+      - web_service
+      - user_service
+      - simulation_service
+      - game_service
+    
+  storage:
+    image: docker.io/bitnami/minio:2022
+    container_name: storage
+    ports:
+      - '1290:9000'
+      - '9001:9001'
+    networks:
+      - toefl_network
+    volumes:
+      - 'toefl_storage:/data'
+    environment:
+      - MINIO_ROOT_USER=kamuiniapa
+      - MINIO_ROOT_PASSWORD=akumanusia
+      - MINIO_DEFAULT_BUCKETS=toefl
+
+networks:
+  toefl_network:
+    driver: bridge
+
+volumes:
+  toefl_storage:
+    driver: local
