@@ -14,8 +14,8 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000/api/",
-            "description": "Demo API Server"
+            "url": "http://127.0.0.1:8000/api/",
+            "description": "Demo API"
         }
     ],
     "paths": {
@@ -355,6 +355,142 @@
                 "responses": {
                     "200": {
                         "description": "User Change Password Successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/profile": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Profile",
+                "description": "Profile enpoint",
+                "operationId": "authProfile",
+                "responses": {
+                    "200": {
+                        "description": "User Profile Successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/search/friend": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Search Friend",
+                "description": "Search Friend enpoint",
+                "operationId": "authSearchFriend",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "text"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User Search Friend Successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/spesify-user/{id}": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Spesify Friend",
+                "description": "Spesify Friend enpoint",
+                "operationId": "authSpesifyFriend",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "masukkan id user",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User Spesify Friend Successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/friend/process/add-patch/{id}": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Add Friend",
+                "description": "Add Friend enpoint",
+                "operationId": "authAddFriend",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "masukkan id user",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User Add Friend Successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/get-all/friends": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get All Friends",
+                "description": "Get All Friends enpoint",
+                "operationId": "authGetAllFriends",
+                "responses": {
+                    "200": {
+                        "description": "User Get All Friends Successfully"
                     }
                 },
                 "security": [
