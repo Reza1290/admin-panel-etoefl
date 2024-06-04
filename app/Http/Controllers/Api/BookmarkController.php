@@ -54,8 +54,24 @@ class BookmarkController extends Controller
     public function getSpesificBookmark($idBookmark)
     {
         try {
+            if (!$idBookmark) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID Bookmark is required'
+                ]);
+            }
+
             $initIdUser = auth()->user()->_id;
             $init = UserAnswer::with('question')->where('user_id', $initIdUser)->where('bookmark', true)->where('question_id', $idBookmark)->first();
+
+            if (!$init) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data Bookmark User Not Found'
+                ]);
+            }
+
+
 
             $initNested = Nested::where('question_id', $init->question_id)->first();
 
@@ -66,7 +82,7 @@ class BookmarkController extends Controller
                 'message' => 'Data Spesification question Bookmark User Successfully Fetched.',
                 'data' => [
                     'id' => $init->question->_id,
-                    'nested_question' => $initNested ? $initNested->nestedQuestion->question_nested : "",
+                    'nested_question' => $initNested->nestedQuestion ? $initNested->nestedQuestion->question_nested : "",
                     'question' => $init->question->question,
                     'answer_user' => $init->answer_user,
                     'key_answer' => $init->question->key_question,

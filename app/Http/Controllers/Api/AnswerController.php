@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ScorerMail;
 use App\Models\Packet;
 use App\Models\Paket;
 use App\Models\Question;
@@ -13,6 +14,7 @@ use App\Models\UserScorer;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class AnswerController extends Controller
@@ -121,7 +123,7 @@ class AnswerController extends Controller
 
             if ($getPacket['tipe_test_packet'] == "Mini Test") {
                 ScoreMiniTest::create([
-                     'packet_id' => $idPacket,
+                    'packet_id' => $idPacket,
                     'user_id' => auth()->user()->_id,
                     'akurasi' => $prosentase,
                 ]);
@@ -137,7 +139,7 @@ class AnswerController extends Controller
                 ]);
             }
 
-            UserScorer::create([
+            $userScorer = UserScorer::create([
                 'packet_id' => $idPacket,
                 'user_id' => auth()->user()->_id,
                 'akurasi' => $prosentase,
@@ -147,6 +149,178 @@ class AnswerController extends Controller
                 'score_structure' => $hasilAkhirSatuanStructure,
                 'score_reading' => $hasilAkhirSatuanReading,
             ]);
+
+            // kirim email dengan value value yang atas 
+            $userTarget = User::with('target')->where('_id', auth()->user()->_id)->first();
+            $countAnsweredUser = UserAnswer::where('user_id', auth()->user()->_id)
+                ->where('answer_user', '!=', '-')
+                ->where('packet_id', $idPacket)
+                ->count();
+
+            $correctQuestion = UserAnswer::where('user_id', auth()->user()->_id)
+                ->where('packet_id', $idPacket)
+                ->where('correct', true)
+                ->count();
+
+            $totalSoal = Question::where('packet_id', $idPacket)->count();
+
+            $jumlahSoalListeningTypeA = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Listening')
+                ->where('part_question', 'A')
+                ->count();
+
+            $jumlahSoalListeningTypeB = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Listening')
+                ->where('part_question', 'B')
+                ->count();
+
+            $jumlahSoalListeningTypeC = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Listening')
+                ->where('part_question', 'C')
+                ->count();
+
+            $jumlahSoalListeningAll = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Listening')
+                ->count();
+
+            // ------------------------------------------------- //
+
+            $jumlahSoalStructureTypeA = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Structure And Written Expression')
+                ->where('part_question', 'A')
+                ->count();
+
+            $jumlahSoalStructureTypeB = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Structure And Written Expression')
+                ->where('part_question', 'B')
+                ->count();
+
+            $jumlahSoalStructureAll = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Structure And Written Expression')
+                ->count();
+
+            // ------------------------------------------------- //
+
+            $jumlahSoalReading = Question::where('packet_id', $idPacket)
+                ->where('type_question', 'Reading')
+                ->count();
+
+            // ------------------------------------------------- //
+
+            $initQuestionPackerCorrect = UserAnswer::where('user_id', auth()->user()->_id)
+                ->where('packet_id', $idPacket)
+                ->where('correct', true)
+                ->get();
+
+            $correctQuestionListeningTypeA = 0;
+            $correctQuestionListeningTypeB = 0;
+            $correctQuestionListeningTypeC = 0;
+            $correctQuestionStructureTypeA = 0;
+            $correctQuestionStructureTypeB = 0;
+            $correctQuestionReading = 0;
+
+            foreach ($initQuestionPackerCorrect as $item) {
+                $question = Question::where('_id', $item->question_id)->first();
+                if ($question->type_question == 'Listening') {
+                    if ($question->part_question == 'A') {
+                        $correctQuestionListeningTypeA++;
+                    } elseif ($question->part_question == 'B') {
+                        $correctQuestionListeningTypeB++;
+                    } elseif ($question->part_question == 'C') {
+                        $correctQuestionListeningTypeC++;
+                    }
+                } elseif ($question->type_question == 'Structure And Written Expression') {
+                    if ($question->part_question == 'A') {
+                        $correctQuestionStructureTypeA++;
+                    } elseif ($question->part_question == 'B') {
+                        $correctQuestionStructureTypeB++;
+                    }
+                } elseif ($question->type_question == 'Reading') {
+                    $correctQuestionReading++;
+                }
+            }
+
+            $jumlahCorrectSoalListeningAll = $correctQuestionListeningTypeA + $correctQuestionListeningTypeB + $correctQuestionListeningTypeC;
+            $jumlahCorrectSoalStructureAll = $correctQuestionStructureTypeA + $correctQuestionStructureTypeB;
+            $jumlahCorrectSoalReading = $correctQuestionReading;
+
+            $accuracyListeningTypeA = round(($correctQuestionListeningTypeA / $jumlahSoalListeningTypeA) * 100);
+            $accuracyListeningTypeB = round(($correctQuestionListeningTypeB / $jumlahSoalListeningTypeB) * 100);
+            $accuracyListeningTypeC = round(($correctQuestionListeningTypeC / $jumlahSoalListeningTypeC) * 100);
+
+            $accuracyStructureTypeA = round(($correctQuestionStructureTypeA / $jumlahSoalStructureTypeA) * 100);
+            $accuracyStructureTypeB = round(($correctQuestionStructureTypeB / $jumlahSoalStructureTypeB) * 100);
+
+            $accuracyReading = round(($correctQuestionReading / $jumlahSoalReading) * 100);
+
+            // init mail
+            $initPacketName = Paket::where('_id', $idPacket)->first();
+            $namePacket = $initPacketName['name_packet'];
+            $akurasiProsentase = $prosentase;
+            $scoreToefl = $hasilAkhir;
+            $targetUser = $userTarget->target ? $userTarget->target->score_target : null;
+            $answerUser = $countAnsweredUser;
+            $correctQuestionAll = $correctQuestion;
+            $totalQuestionAll = $totalSoal;
+            $correctQuestionListeningAll = $jumlahCorrectSoalListeningAll;
+            $totalQuestionListeningAll = $jumlahSoalListeningAll;
+            $listeningPartACorrect = $correctQuestionListeningTypeA;
+            $totalQuestionListeningPartA = $jumlahSoalListeningTypeA;
+            $accuracyListeningPartA = $accuracyListeningTypeA;
+            $correctQuestionListeningPartB = $correctQuestionListeningTypeB;
+            $totalQuestionListeningPartB = $jumlahSoalListeningTypeB;
+
+
+            $accuracyListeningPartB = $accuracyListeningTypeB;
+            $correctQuestionListeningPartC = $correctQuestionListeningTypeC;
+            $totalQuestionListeningPartC = $jumlahSoalListeningTypeC;
+            $accuracyListeningPartC = $accuracyListeningTypeC;
+            $correctQuestionStructureAll = $jumlahCorrectSoalStructureAll;
+            $totalQuestionStructureAll = $jumlahSoalStructureAll;
+            $correctQuestionStructurePartA = $correctQuestionStructureTypeA;
+            $totalQuestionStructurePartA = $jumlahSoalStructureTypeA;
+            $accuracyStructurePartA = $accuracyStructureTypeA;
+            $correctQuestionStructurePartB = $correctQuestionStructureTypeB;
+            $totalQuestionStructurePartB = $jumlahSoalStructureTypeB;
+            $accuracyStructurePartB = $accuracyStructureTypeB;
+            $correctQuestionReading = $correctQuestionReading;
+            $totalQuestionReading = $jumlahSoalReading;
+            $accuracyReading = $accuracyReading;
+            $userScoreInformation = $userScorer->level_profiency;
+
+            Mail::to(auth()->user()->email)->send(new ScorerMail(
+                $namePacket,
+                $akurasiProsentase,
+                $scoreToefl,
+                $targetUser,
+                $answerUser,
+                $correctQuestionAll,
+                $totalQuestionAll,
+                $correctQuestionListeningAll,
+                $totalQuestionListeningAll,
+                $listeningPartACorrect,
+                $totalQuestionListeningPartA,
+                $accuracyListeningPartA,
+                $correctQuestionListeningPartB,
+                $totalQuestionListeningPartB,
+                $accuracyListeningPartB,
+                $correctQuestionListeningPartC,
+                $totalQuestionListeningPartC,
+                $accuracyListeningPartC,
+                $correctQuestionStructureAll,
+                $totalQuestionStructureAll,
+                $correctQuestionStructurePartA,
+                $totalQuestionStructurePartA,
+                $accuracyStructurePartA,
+                $correctQuestionStructurePartB,
+                $totalQuestionStructurePartB,
+                $accuracyStructurePartB,
+                $correctQuestionReading,
+                $totalQuestionReading,
+                $accuracyReading,
+                $userScoreInformation
+            ));
+
 
             return response()->json([
                 'success' => true,
@@ -451,8 +625,6 @@ class AnswerController extends Controller
                 'score_reading' => $hasilAkhirSatuanReading,
             ]);
 
-
-
             return response()->json([
                 'success' => true,
                 'message' => 'Answers retake submitted successfully.',
@@ -478,7 +650,7 @@ class AnswerController extends Controller
         }
     }
 
-   public function answerUsers($idPacket)
+    public function answerUsers($idPacket)
     {
         $userAnswers = UserAnswer::with('question.nesteds', 'question.multipleChoices')->where('packet_id', $idPacket)->where('user_id', auth()->user()->_id)->get();
 
