@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\ValueHomeController;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use PhpOffice\Math\Element\Row;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -38,4 +39,8 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout',  'logout');
     Route::post('check/password', 'checkPassword');
     Route::post('change/password', 'changePassword');
+    Route::post('search/friend', 'searchFriend');
+    Route::get('/spesify-user/{id}', 'spesifyFriend');
+    Route::post('/friend/process/add-patch/{id}', 'addFriend');
+    Route::get('/get-all/friends', 'getAllFriends');
 });

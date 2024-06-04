@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\ForgotMail;
 use App\Mail\RegisterOtpMail;
 use App\Models\User;
+use App\Models\UserFriend;
 use App\Models\UserScorer;
 use DateInterval;
 use DateTime;
@@ -77,7 +78,7 @@ class AuthController extends Controller
 
             $credentials = $request->only('email', 'password');
 
-            
+
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'success' => false,
@@ -201,11 +202,11 @@ class AuthController extends Controller
             $expiredAt = $now->copy()->addHour()->toDateTimeString();
 
             $requestEmailCheck = User::where('email', $request->email)->first();
-            if($requestEmailCheck) {
+            if ($requestEmailCheck) {
                 return response()->json([
                     'success' => false,
                     'message' => 'email already digae'
-                ],200);
+                ], 200);
             }
 
             $user = User::create([
@@ -838,6 +839,22 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     * path="/users/profile",
+     * summary="Profile",
+     * description="Profile enpoint",
+     * operationId="authProfile",
+     * tags={"Auth"},
+     * security={{ "apiAuth": {} }},
+     * @OA\Response(
+     *         response="200",
+     *         description="User Profile Successfully",
+     *         
+     *     ),
+     * )
+     */
+
     public function profile()
     {
         $user = auth()->user()->_id;
@@ -852,8 +869,10 @@ class AuthController extends Controller
                     'level' => "",
                     'current_score' => 0,
                     'target_score' => $userInit->target ? $userInit->target->score_target : 0,
+                    'rank' => 0,
                     'name_user' => $userInit->name,
                     'email_user' => $userInit->email,
+                    'profile_image' => $userInit ? $userInit->profile : "",
                 ]
             ], 201);
         }
@@ -866,9 +885,261 @@ class AuthController extends Controller
                 'level' => $scoreUserLatest->level_profiency,
                 'current_score' => $scoreUserLatest->score_toefl,
                 'target_score' => $userInit->target ? $userInit->target->score_target : 0,
+                'rank' => 0,
                 'name_user' => $userInit->name,
                 'email_user' => $userInit->email,
+                'profile_image' => $userInit ? $userInit->profile : "",
             ]
         ], 200);
+    }
+
+    /**
+     * @OA\Post(
+     * path="/search/friend",
+     * summary="Search Friend",
+     * description="Search Friend enpoint",
+     * operationId="authSearchFriend",
+     * tags={"Auth"},
+     * security={{ "apiAuth": {} }},
+     * @OA\RequestBody(
+     *      @OA\JsonContent(),
+     *      @OA\MediaType(
+     *          mediaType="application/x-www-form-urlencoded",
+     *          @OA\Schema(
+     *              type="object",
+     *              required={"name"},
+     *              @OA\Property(property="name",type="text"),
+     *          ),
+     *         ),
+     *    ),
+     *    @OA\Response(
+     *         response="200",
+     *         description="User Search Friend Successfully",
+     *         
+     *     ),
+     * )
+     */
+
+    public function searchFriend(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'name' => 'required'
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors(),
+            ], 422);
+        }
+
+        $user = User::where('name', 'LIKE', '%' . $request->name . '%')->get();
+
+        if ($user->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ]);
+        }
+
+        $mappedData = [];
+        foreach ($user as $users) {
+            $mappedData[] = [
+                'id' => $users->_id,
+                'profile_image' => $users ? $users->profile : "",
+                'name' => $users->name,
+            ];
+        }
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User found',
+            'data' => $mappedData
+        ]);
+    }
+
+    // swagger spesifyFriend and add parameter
+    /**
+     * @OA\Get(
+     * path="/spesify-user/{id}",
+     * summary="Spesify Friend",
+     * description="Spesify Friend enpoint",
+     * operationId="authSpesifyFriend",
+     * tags={"Auth"},
+     * security={{ "apiAuth": {} }},
+     * @OA\Response(
+     *         response="200",
+     *         description="User Spesify Friend Successfully",
+     *         
+     *     ),
+     * @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="masukkan id user",
+     *         required=true,
+     *      ),
+     * )
+     */
+
+    public function spesifyFriend($id)
+    {
+        try {
+            $userInit = User::with('target')->where('_id', $id)->first();
+            if (!$userInit) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ]);
+            }
+
+            $scoreUserLatest = UserScorer::where('user_id', $userInit->_id)->latest()->first();
+            if ($userInit->_id == auth()->user()->_id) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'u lihat profil lu sendiri tol, nembak o api profile ',
+                ]);
+            }
+
+            $is_friend = UserFriend::where('user_id', auth()->user()->_id)->where('friend_id', $userInit->_id)->first();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'data user aman cuy spesifik e, is friend true yo button e unfriend (nembak api frienf/add-patch), false brti addfriend sama nembak e mek',
+                'data' => [
+                    'id' => $userInit->_id,
+                    'level' => $scoreUserLatest ? $scoreUserLatest->level_profiency : "",
+                    'current_score' => $scoreUserLatest ? $scoreUserLatest->score_toefl : 0,
+                    'rank' => 0,
+                    'name_user' => $userInit->name,
+                    'email_user' => $userInit->email,
+                    'profile_image' => $userInit ? $userInit->profile : "",
+                    'is_friend' => $is_friend ? true : false
+                ]
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // swagger addFriend
+    /**
+     * @OA\Post(
+     * path="/friend/process/add-patch/{id}",
+     * summary="Add Friend",
+     * description="Add Friend enpoint",
+     * operationId="authAddFriend",
+     * tags={"Auth"},
+     * security={{ "apiAuth": {} }},
+     * @OA\Response(
+     *         response="200",
+     *         description="User Add Friend Successfully",
+     *         
+     *     ),
+     * @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="masukkan id user",
+     *         required=true,
+     *    ),
+     * )
+     */
+
+    public function addFriend($idFriend)
+    {
+        try {
+            $friend = User::find($idFriend);
+            if (!$friend) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ]);
+            }
+
+            $userLogged = auth()->user();
+
+            $isFriend = UserFriend::where('user_id', $userLogged->_id)->where('friend_id', $idFriend)->first();
+
+            if ($isFriend) {
+                UserFriend::where('user_id', $userLogged->_id)->where('friend_id', $idFriend)->delete();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Friend deleted, button rubah add friend njeng',
+                    'data' => [
+                        'is_friend' => false
+                    ]
+                ]);
+            }
+
+            UserFriend::create([
+                'user_id' => $userLogged->_id,
+                'friend_id' => $idFriend
+            ]);
+
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Friend added, button rubah unfriend njeng',
+                'data' => [
+                    'is_friend' => true
+                ]
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    // buatkan sya swagger getAllFriends 
+    /**
+     * @OA\Get(
+     * path="/get-all/friends",
+     * summary="Get All Friends",
+     * description="Get All Friends enpoint",
+     * operationId="authGetAllFriends",
+     * tags={"Auth"},
+     * security={{ "apiAuth": {} }},
+     * @OA\Response(
+     *         response="200",
+     *         description="User Get All Friends Successfully",
+     *         
+     *     ),
+     * )
+     */
+
+
+    public function getAllFriends()
+    {
+        $user = auth()->user();
+        $friends = UserFriend::where('user_id', $user->_id)->get();
+        $friendList = [];
+        foreach ($friends as $friend) {
+            $friendList[] = User::find($friend->friend_id);
+        }
+
+        $mappedData = [];
+        foreach ($friendList as $friend) {
+            $scoreUserLatest = UserScorer::where('user_id', $friend->_id)->latest()->first();
+            $mappedData[] = [
+                'id' => $friend->_id,
+                'level' => $scoreUserLatest ? $scoreUserLatest->level_profiency : "",
+                'current_score' => $scoreUserLatest ? $scoreUserLatest->score_toefl : 0,
+                'rank' => 0,
+                'name_user' => $friend->name,
+                'email_user' => $friend->email,
+                'profile_image' => $friend ? $friend->profile : "",
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Friend list get, ngko delok spesifik profile e nembak api spesify profile',
+            'data' => $mappedData
+        ]);
     }
 }
