@@ -99,7 +99,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('storage/nested_question/icon.png') }}" alt="PENTOL Logo">
+            <img src="{{ env('AWS_RESOURCE').'/'.env('AWS_BUCKET').'/icon.png" alt="PENTOL Logo">
             <h1>Score Toefl</h1>
         </div>
 
