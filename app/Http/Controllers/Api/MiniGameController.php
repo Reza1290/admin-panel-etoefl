@@ -172,7 +172,7 @@ class MiniGameController extends Controller
             ->orderBy('created_at', 'desc')->take(10)
             ->get();
 
-        return response()->json([
+        return response()->json([   
             'success' => true,
             'data' => $history
         ]);

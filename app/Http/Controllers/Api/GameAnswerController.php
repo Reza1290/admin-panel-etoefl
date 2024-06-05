@@ -63,7 +63,7 @@ class GameAnswerController extends Controller
                     'game_name' => $quiz->quiz->quiz_name,
                 'game_type' => 'Game Level',
 
-                    'score' => $request->is_true,
+                    'score' => (GameAnswer::where('game_claim_id',$game_claim->id)->sum('score')),
                 ]);
             }
 

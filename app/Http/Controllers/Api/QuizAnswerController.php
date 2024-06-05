@@ -58,7 +58,7 @@ class QuizAnswerController extends Controller
                     'user_id' => $user->id,
                     'game_name' => $quiz_claim->quiz_name,
                     'game_type'=> 'Quiz Short',
-                    'score' => $request->is_true,
+                    'score' => (QuizAnswer::where('quiz_claim_id',$quiz_claim->id)->sum('score')),
                 ]);
             }
 
