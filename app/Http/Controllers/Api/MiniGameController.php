@@ -34,7 +34,9 @@ class MiniGameController extends Controller
                 app(LeaderboardController::class)->updateUserScores();
                 GameHistory::create([
                     'user_id' => $user->id,
-                    'game_type' => 'Synonym Pairing Game',
+                    'game_name' => 'Synonym Pairing Game',
+                'game_type' => 'Challenge',
+
                     'score' => $request->is_true,
                 ]);
                 return response()->json([
@@ -70,7 +72,8 @@ class MiniGameController extends Controller
             app(LeaderboardController::class)->updateUserScores();
             GameHistory::create([
                 'user_id' => $user->id,
-                'game_type' => 'Scrambled Word',
+                'game_name' => 'Scrambled Word',
+                'game_type' => 'Challenge',
                 'score' => $request->is_true,
             ]);
             return response()->json([
@@ -106,7 +109,8 @@ class MiniGameController extends Controller
 
             GameHistory::create([
                 'user_id' => $user->id,
-                'game_type' => 'Scrambled Sentence',
+                'game_name' => 'Scrambled Sentence',
+                'game_type' => 'Challenge',
                 'score' => $request->is_true,
             ]);
 
@@ -141,7 +145,8 @@ class MiniGameController extends Controller
             app(LeaderboardController::class)->updateUserScores();
             GameHistory::create([
                 'user_id' => $user->id,
-                'game_type' => 'Speaking Game',
+                'game_name' => 'Speaking Game',
+                'game_type' => 'Challenge',
                 'score' => $request->score,
             ]);
     
