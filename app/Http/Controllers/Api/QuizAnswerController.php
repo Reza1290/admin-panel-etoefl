@@ -59,7 +59,7 @@ class QuizAnswerController extends Controller
                     'game_name' => $quiz_claim->quiz_name,
                     'game_type'=> 'Quiz Short',
                     'score' => $request->is_true,
-                ]);g
+                ]);
             }
 
 
