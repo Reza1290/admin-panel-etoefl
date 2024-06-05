@@ -14,6 +14,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/', 'login')->name('loginPost');
 });
 
-// Route::controller(AuthAuthController::class)->group(function () {
-//     Route::get('/.well-known/assetlinks.json', 'wellknownAssetLink');
-// });
+Route::controller(AuthAuthController::class)->group(function () {
+    Route::get('/.well-known/assetlinks.json', 'wellknownAssetLink');
+});

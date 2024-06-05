@@ -1221,21 +1221,8 @@ class AuthController extends Controller
 
     public function wellknownAssetLink()
     {
-        $data = [
-            "relation" => ["delegate_permission/common.handle_all_urls"],
-            "target" => [
-                "namespace" => "android_app",
-                "package_name" => "com.pens.toefl",
-                "sha256_cert_fingerprints" => [
-                    "71:CF:B8:BD:5A:8A:81:33:53:E4:47:FA:79:96:48:6E:67:63:4C:1B:8E:B4:94:CE:96:25:A1:C5:4C:0E:EA:3D"
-                ]
-            ]
-        ];
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Please find the asset link below',
-            'data' => $data
-        ]);
+        $data = public_path('data/links.json');
+        $data = json_decode(file_get_contents($data), true);
+        return response()->json($data);
     }
 }
