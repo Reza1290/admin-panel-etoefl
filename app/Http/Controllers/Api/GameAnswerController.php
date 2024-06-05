@@ -61,7 +61,7 @@ class GameAnswerController extends Controller
                 GameHistory::create([
                     'user_id' => $user->id,
                     'game_name' => $quiz->quiz->quiz_name,
-                'game_type' => 'Game Level',
+                'game_type' => 'Game Level'.$quiz->game->level,
 
                     'score' => (GameAnswer::where('game_claim_id',$game_claim->id)->sum('score')),
                 ]);
