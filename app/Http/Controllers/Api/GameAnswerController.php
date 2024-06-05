@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\GameAnswer;
 use App\Models\GameClaim;
 use App\Models\GameSet;
+use App\Models\Leaderboard;
 use App\Models\Quiz;
 use App\Models\QuizAnswerKey;
 use App\Models\QuizContent;
@@ -55,6 +56,7 @@ class GameAnswerController extends Controller
 
                 $game_claim->is_completed = true;
                 $game_claim->save();
+                app(LeaderboardController::class)->updateUserScores();
             }
 
             return response()->json([

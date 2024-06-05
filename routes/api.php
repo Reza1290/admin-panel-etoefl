@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\ForYouController;
 use App\Http\Controllers\Api\GameAnswerController;
 use App\Http\Controllers\Api\GameClaimController;
 use App\Http\Controllers\Api\GameController;
+use App\Http\Controllers\Api\LeaderboardController;
+use App\Http\Controllers\Api\MiniGameController;
 use App\Http\Controllers\Api\PairingClaimController;
 use App\Http\Controllers\Api\QuizAnswerController;
 use App\Http\Controllers\Api\QuizController;
@@ -24,18 +26,25 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::middleware('auth:api')->group(function () {
-    Route::resource('/randomword', RandomWordController::class);
+    Route::group(['prefix' => '/minigames'], function() {
+        Route::post('/pairing-game', [MiniGameController::class, 'storePairingGames']);
+        Route::post('/scrambled-word-game', [MiniGameController::class, 'storeScrambledWordGames']);
+        Route::post('/scrambled-tense-game', [MiniGameController::class, 'storeScrambledTenseGames']);
+        Route::post('/speaking-game', [MiniGameController::class, 'storeSpeakingGames']);
+        Route::get('/user-history', [MiniGameController::class, 'getLoggedInUserHistory']);
+        Route::get('/user-history/{userId}', [MiniGameController::class, 'getUserHistory']);
+    });
+    Route::resource('/leaderboard',LeaderboardController::class);
+
+    
+    Route::resource('/foryou', ForYouController::class);
+    
     Route::resource('/quizs',QuizController::class);
     Route::resource('/quiztypes',QuizTypeController::class);
     Route::resource('/games',GameController::class);
     Route::resource('/gameclaims',GameClaimController::class);
     Route::resource('/quizclaims',QuizEnrollController::class);
-    Route::resource('/leaderboard',QuizGameScoreController::class);
     Route::resource('/gameanswer',GameAnswerController::class);
     Route::resource('/quizanswer',QuizAnswerController::class);
-    Route::resource('/quizgameresult',QuizResultController::class);
-    Route::resource('/randomword',RandomWordController::class);
-    Route::resource('/scrambledword',ScrambledWordController::class);
-    Route::resource('/pairingclaims',PairingClaimController::class);
-    Route::resource('/foryou', ForYouController::class);
+    Route::resource('/quizgameresult',QuizResultController::class);    
 });
