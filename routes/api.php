@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\QuizTypeController;
 use App\Http\Controllers\Api\RandomWordController;
 use App\Http\Controllers\Api\ScrambledWordController;
 use App\Http\Controllers\Api\ValueHomeController;
+use App\Models\Leaderboard;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -34,8 +35,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/user-history', [MiniGameController::class, 'getLoggedInUserHistory']);
         Route::get('/user-history/{userId}', [MiniGameController::class, 'getUserHistory']);
     });
-    Route::resource('/leaderboard',LeaderboardController::class);
-
+    Route::get('/leaderboard',[LeaderboardController::class, 'index']);
+    Route::get('/leaderboard/{id}',[LeaderboardController::class,'show']);
     
     Route::resource('/foryou', ForYouController::class);
     
