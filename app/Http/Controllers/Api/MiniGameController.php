@@ -169,7 +169,7 @@ class MiniGameController extends Controller
         $user = $userId ? User::findOrFail($userId) : auth()->user();
         
         $history = GameHistory::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'desc')->take(10)
             ->get();
 
         return response()->json([
