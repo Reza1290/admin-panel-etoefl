@@ -1194,7 +1194,8 @@ class AuthController extends Controller
 
             if ($request->hasFile('profile_image')) {
                 // $profile = time() . '_' . Str::random(10) . '.' . $request->file('profile_image')->getClientOriginalExtension();
-                $filePath = Storage::cloud()->put('/user_photo', $request->file('profile_image'));
+                $file = $request->file('profile_image');
+                $filePath = Storage::cloud()->put('/user_photo', $file);
                 // $filePath = $request->file('profile_image')->storeAs('user_photo', $profile, 'public');
             }
 
@@ -1209,6 +1210,7 @@ class AuthController extends Controller
                 'data' => [
                     'name' => $user->name,
                     'profile_image' => $user->profile,
+                    'titit' => $request
                 ]
             ]);
         } catch (Exception $e) {
