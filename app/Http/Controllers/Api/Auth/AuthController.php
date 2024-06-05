@@ -1177,7 +1177,7 @@ class AuthController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'profile_image' => '',
         ]);
 
         if ($validate->fails()) {
