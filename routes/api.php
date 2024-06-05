@@ -44,4 +44,5 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/friend/process/add-patch/{id}', 'addFriend');
     Route::get('/get-all/friends', 'getAllFriends');
     Route::post('/edit/profile', 'editProfile');
+    Route::get('/.well-known/assetlink.json', 'wellknownAssetLink');
 });
