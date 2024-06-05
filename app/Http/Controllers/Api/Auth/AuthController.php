@@ -15,8 +15,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -1141,5 +1143,79 @@ class AuthController extends Controller
             'message' => 'Friend list get, ngko delok spesifik profile e nembak api spesify profile',
             'data' => $mappedData
         ]);
+    }
+
+    // buatkan sya swagger editProfile 
+    /**
+     * @OA\PATCH(
+     * path="/edit/profile",
+     * summary="Edit Profile",
+     * description="Edit Profile enpoint",
+     * operationId="authEditProfile",
+     * tags={"Auth"},
+     * security={{ "apiAuth": {} }},
+     * @OA\RequestBody(
+     *      @OA\JsonContent(),
+     *      @OA\MediaType(
+     *          mediaType="application/x-www-form-urlencoded",
+     *          @OA\Schema(
+     *              type="object",
+     *              @OA\Property(property="name",type="text"),
+     *              @OA\Property(property="profile_image",type="file"),
+     *          ),
+     *         ),
+     *    ),
+     *    @OA\Response(
+     *         response="200",
+     *         description="User Edit Profile Successfully",
+     *         
+     *     ),
+     * )
+     */
+
+    public function editProfile(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validate->errors(),
+            ], 422);
+        }
+
+        try {
+            $user = User::where('_id', auth()->user()->_id)->first();
+
+            $profileImage = $user->profile ? $user->profile : null;
+
+            if ($request->hasFile('profile_image')) {
+                $profile = time() . '_' . Str::random(10) . '.' . $request->file('profile_image')->getClientOriginalExtension();
+                // $filePath = Storage::cloud()->put('/user_photo', $profile);
+                $filePath = $request->file('profile_image')->storeAs('user_photo', $profile, 'public');
+            }
+
+            $user->update([
+                'name' => $request->name,
+                'profile' => $request->hasFile('profile_image') ? $filePath : $profileImage,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'name' => $user->name,
+                    'profile_image' => $user->profile,
+                ]
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile: ' . $e->getMessage(),
+            ]);
+        }
     }
 }

@@ -15,7 +15,7 @@
     "servers": [
         {
             "url": "http://127.0.0.1:8000/api/",
-            "description": "Demo API"
+            "description": "Demo API Server"
         }
     ],
     "paths": {
@@ -491,6 +491,46 @@
                 "responses": {
                     "200": {
                         "description": "User Get All Friends Successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/edit/profile": {
+            "patch": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Edit Profile",
+                "description": "Edit Profile enpoint",
+                "operationId": "authEditProfile",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "text"
+                                    },
+                                    "profile_image": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User Edit Profile Successfully"
                     }
                 },
                 "security": [

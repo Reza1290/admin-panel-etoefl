@@ -43,4 +43,5 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/spesify-user/{id}', 'spesifyFriend');
     Route::post('/friend/process/add-patch/{id}', 'addFriend');
     Route::get('/get-all/friends', 'getAllFriends');
+    Route::post('/edit/profile', 'editProfile');
 });

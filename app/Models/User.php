@@ -37,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
         'otp_forgot_expired_at',
         'otp_register_expired_at',
         'email_verified_at',
+        'profile',
     ];
 
     /**
