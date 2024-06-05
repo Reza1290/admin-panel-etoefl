@@ -37,7 +37,8 @@ class MiniGameController extends Controller
             }catch(Exception $e){
                 return response()->json([
                     'success' => false,
-                    'data'=> false
+                    'data'=> false,
+                    'message' => $e->getMessage()
                 ]);
             }
         
@@ -67,7 +68,8 @@ class MiniGameController extends Controller
         }catch(Exception $e){
             return response()->json([
                 'success' => false,
-                'data'=> false
+                'data'=> false,
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -96,7 +98,8 @@ class MiniGameController extends Controller
         }catch(Exception $e){
             return response()->json([
                 'success' => false,
-                'data'=> false
+                'data'=> false,
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -124,7 +127,8 @@ class MiniGameController extends Controller
         }catch(Exception $e){
             return response()->json([
                 'success' => false,
-                'data'=> false
+                'data'=> false,
+                'message' => $e->getMessage()
             ]);
         }
     }
