@@ -1210,7 +1210,8 @@ class AuthController extends Controller
                 'data' => [
                     'name' => $user->name,
                     'profile_image' => $user->profile,
-                    'titit' => $request
+                    'titit' => $request,
+                    'aw' => $request->hasFile('profile_image')
                 ]
             ]);
         } catch (Exception $e) {
