@@ -39,6 +39,34 @@ class LeaderboardController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        try {
+            $user = empty($id) ? auth()->user() : User::find($id)->first();
+            $myScore = Leaderboard::where('user_id', $user->_id)->first();
+
+            if (!$myScore) {
+                return response()->json([
+                    'data' => [
+                        'name' => $user->name,
+                        'rank' => -1,
+                    ]
+                ]);
+            }
+
+            $myRank = Leaderboard::where('total_score', '>', $myScore->total_score)->count() + 1;
+
+            return response()->json([
+                'data' => [
+                    'name' => $user->name,
+                    'rank' => $myRank,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while retrieving the rank. Please try again later.'], 500);
+        }
+    }
+
     public function updateUserScores()
     {
         $user = auth()->user();

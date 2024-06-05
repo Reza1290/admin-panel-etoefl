@@ -11,7 +11,7 @@ class Leaderboard extends Model
     protected $connection = 'mongodb';
     protected $collection = 'leaderboards';
     protected $fillable = [
-        'user_id', 'game_score','quiz_score','synonym_score','scrambled_score','tense_score','speaking_score','timestamp'
+        'user_id','total_score',     'game_score','quiz_score','synonym_score','scrambled_score','tense_score','speaking_score','timestamp'
     ];
 
     use HasFactory;
