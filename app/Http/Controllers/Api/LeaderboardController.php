@@ -78,8 +78,7 @@ class LeaderboardController extends Controller
             $speaking_score = SpeakingClaim::where('user_id', $user->id)
                 ->whereYear('created_at', $currentYear)
                 ->whereMonth('created_at', $currentMonth)
-                ->where('is_true', true)
-                ->count();
+                ->sum('score');
 
             $total_score = $game_score + $quiz_score + $synonym_score + $scrambled_score + $tense_score + $speaking_score;
 
