@@ -38,8 +38,10 @@ class LeaderboardController extends Controller
             return response()->json(['error' => 'An error occurred while retrieving scores. Please try again later.'], 500);
         }
     }
-
-    public function show($id)
+    public function me(){
+        return $this->show();
+        }
+    public function show($id = null)
     {
         try {
             $user = empty($id) ? auth()->user() : User::find($id)->first();

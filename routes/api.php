@@ -36,7 +36,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/user-history/{userId}', [MiniGameController::class, 'getUserHistory']);
     });
     Route::get('/leaderboard',[LeaderboardController::class, 'index']);
-    Route::get('/user-rank',[LeaderboardController::class,'show']);
+    Route::get('/user-rank',[LeaderboardController::class,'me']);
     Route::get('/user-rank/{id}',[LeaderboardController::class,'show']);
     
     Route::resource('/foryou', ForYouController::class);

@@ -7,6 +7,7 @@ use App\Models\ScrambledClaim;
 use App\Models\SpeakingClaim;
 use App\Models\SynonymClaim;
 use App\Models\TenseClaim;
+use App\Models\User;
 use App\Models\Word;
 use Exception;
 use Illuminate\Http\Request;
@@ -136,6 +137,32 @@ class MiniGameController extends Controller
             ]);
         }
     }
+
+//     public function getUserHistory(Request $request, $userId = null)
+// {
+//     try {
+//         $user = $userId ? User::findOrFail($userId) : auth()->user();
+        
+//         $history = GameHistory::where('user_id', $user->id)
+//             ->orderBy('created_at', 'desc')
+//             ->get();
+
+//         return response()->json([
+//             'success' => true,
+//             'data' => $history
+//         ]);
+//     } catch (Exception $e) {
+//         return response()->json([
+//             'success' => false,
+//             'data' => false
+//         ]);
+//     }
+// }
+
+public function getLoggedInUserHistory()
+{
+    return $this->getUserHistory(request());
+}
 
     
 }
