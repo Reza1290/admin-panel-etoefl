@@ -56,7 +56,7 @@ class QuizAnswerController extends Controller
                 app(LeaderboardController::class)->updateUserScores();
                 GameHistory::create([
                     'user_id' => $user->id,
-                    'game_name' => $quiz_claim->quiz_name,
+                    'game_name' => $quiz_claim->quiz->quiz_name,
                     'game_type'=> 'Quiz Short',
                     'score' => (QuizAnswer::where('quiz_claim_id',$quiz_claim->id)->sum('score')),
                 ]);
