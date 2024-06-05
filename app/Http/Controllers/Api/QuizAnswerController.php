@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\GameHistory;
 use App\Models\Leaderboard;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
@@ -53,6 +54,11 @@ class QuizAnswerController extends Controller
                 $quiz_claim->is_completed = true;
                 $quiz_claim->save();
                 app(LeaderboardController::class)->updateUserScores();
+                GameHistory::create([
+                    'user_id' => $user->id,
+                    'game_type' => $quiz_claim->quiz_name,
+                    'score' => $request->is_true,
+                ]);
             }
 
 

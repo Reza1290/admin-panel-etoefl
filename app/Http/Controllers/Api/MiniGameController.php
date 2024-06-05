@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\GameHistory;
 use App\Models\ScrambledClaim;
 use App\Models\SpeakingClaim;
 use App\Models\SynonymClaim;
@@ -31,7 +32,11 @@ class MiniGameController extends Controller
     
                 $synonymClaim->save();
                 app(LeaderboardController::class)->updateUserScores();
-    
+                GameHistory::create([
+                    'user_id' => $user->id,
+                    'game_type' => 'Synonym Pairing Game',
+                    'score' => $request->is_true,
+                ]);
                 return response()->json([
                     'success'=> true,
                     'data' => true
@@ -63,7 +68,11 @@ class MiniGameController extends Controller
 
             $scrambledClaim->save();
             app(LeaderboardController::class)->updateUserScores();
-
+            GameHistory::create([
+                'user_id' => $user->id,
+                'game_type' => 'Scrambled Word',
+                'score' => $request->is_true,
+            ]);
             return response()->json([
                 'success'=> true,
                 'data' => true
@@ -95,6 +104,12 @@ class MiniGameController extends Controller
             $scrambledTense->save();
             app(LeaderboardController::class)->updateUserScores();
 
+            GameHistory::create([
+                'user_id' => $user->id,
+                'game_type' => 'Scrambled Sentence',
+                'score' => $request->is_true,
+            ]);
+
             return response()->json([
                 'success'=> true,
                 'data' => true
@@ -124,7 +139,12 @@ class MiniGameController extends Controller
 
             $speakingGame->save();
             app(LeaderboardController::class)->updateUserScores();
-
+            GameHistory::create([
+                'user_id' => $user->id,
+                'game_type' => 'Speaking Game',
+                'score' => $request->score,
+            ]);
+    
             return response()->json([
                 'success'=> true,
                 'data' => true
@@ -138,26 +158,26 @@ class MiniGameController extends Controller
         }
     }
 
-//     public function getUserHistory(Request $request, $userId = null)
-// {
-//     try {
-//         $user = $userId ? User::findOrFail($userId) : auth()->user();
+    public function getUserHistory(Request $request, $userId = null)
+{
+    try {
+        $user = $userId ? User::findOrFail($userId) : auth()->user();
         
-//         $history = GameHistory::where('user_id', $user->id)
-//             ->orderBy('created_at', 'desc')
-//             ->get();
+        $history = GameHistory::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-//         return response()->json([
-//             'success' => true,
-//             'data' => $history
-//         ]);
-//     } catch (Exception $e) {
-//         return response()->json([
-//             'success' => false,
-//             'data' => false
-//         ]);
-//     }
-// }
+        return response()->json([
+            'success' => true,
+            'data' => $history
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'data' => false
+        ]);
+    }
+}
 
 public function getLoggedInUserHistory()
 {
