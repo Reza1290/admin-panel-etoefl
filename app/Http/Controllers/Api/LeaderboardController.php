@@ -23,24 +23,15 @@ class LeaderboardController extends Controller
     public function index()
     {
         try {
-            $scores = Leaderboard::with('user:name')->orderBy('total_score', 'desc')->take(10)->get();
+            $scores = Leaderboard::with('user')->orderBy('total_score', 'desc')->take(10)->get();
             $me = auth()->user();
             $myScore = Leaderboard::where('user_id', $me->id)->first();
-            $topScores = Leaderboard::with('user')
-            ->orderBy('total_score', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($score) {
-                return [
-                    'user_name' => $score->user->name,
-                    ...$score
-                ];
-            });
+
             return response()->json([
                 'data' => [
                     'user' => $me,
                     'my_score' => $myScore,
-                    'top_scores' => $topScores
+                    'top_scores' => $scores
                 ]
             ]);
         } catch (\Exception $e) {
