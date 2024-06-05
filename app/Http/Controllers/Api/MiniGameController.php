@@ -37,7 +37,7 @@ class MiniGameController extends Controller
                     'game_name' => 'Synonym Pairing Game',
                 'game_type' => 'Challenge',
 
-                    'score' => $request->is_true,
+                    'score' => $request->is_true ? 1 : 0,
                 ]);
                 return response()->json([
                     'success'=> true,
@@ -74,7 +74,7 @@ class MiniGameController extends Controller
                 'user_id' => $user->id,
                 'game_name' => 'Scrambled Word',
                 'game_type' => 'Challenge',
-                'score' => $request->is_true,
+                'score' => $request->is_true ? 1 : 0,
             ]);
             return response()->json([
                 'success'=> true,
