@@ -25,7 +25,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'forgot']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'forgot', 'wellknownAssetLink']]);
     }
 
     /**
