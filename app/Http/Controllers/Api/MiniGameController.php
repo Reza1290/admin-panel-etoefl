@@ -108,7 +108,7 @@ class MiniGameController extends Controller
         try{
             $request->validate([
                 'tense_id' => 'required',
-                'is_true' => 'required',
+                'score' => 'required',
             ]);
 
             $user = auth()->user();
