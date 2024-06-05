@@ -29,6 +29,7 @@ class MiniGameController extends Controller
                 $synonymClaim->user_id = $user->_id;
     
                 $synonymClaim->save();
+                app(LeaderboardController::class)->updateUserScores();
     
                 return response()->json([
                     'success'=> true,
@@ -60,6 +61,7 @@ class MiniGameController extends Controller
             $scrambledClaim->user_id = $user->_id;
 
             $scrambledClaim->save();
+            app(LeaderboardController::class)->updateUserScores();
 
             return response()->json([
                 'success'=> true,
@@ -90,6 +92,7 @@ class MiniGameController extends Controller
             $scrambledTense->user_id = $user->_id;
 
             $scrambledTense->save();
+            app(LeaderboardController::class)->updateUserScores();
 
             return response()->json([
                 'success'=> true,
@@ -119,6 +122,7 @@ class MiniGameController extends Controller
             $speakingGame->user_id = $user->_id;
 
             $speakingGame->save();
+            app(LeaderboardController::class)->updateUserScores();
 
             return response()->json([
                 'success'=> true,
