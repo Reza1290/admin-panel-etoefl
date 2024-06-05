@@ -23,7 +23,7 @@ class LeaderboardController extends Controller
     public function index()
     {
         try {
-            $scores = Leaderboard::orderBy('total_score', 'desc')->take(10)->get();
+            $scores = Leaderboard::with('user:name')->orderBy('total_score', 'desc')->take(10)->get();
             $me = auth()->user();
             $myScore = Leaderboard::where('user_id', $me->id)->first();
 
