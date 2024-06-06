@@ -935,7 +935,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where('name', 'LIKE', '%' . $request->name . '%')->get();
+        $user = User::where('name', 'LIKE', '%' . $request->name . '%')->where('id','!=',auth()->user()->_id)->get();
 
         if ($user->isEmpty()) {
             return response()->json([
