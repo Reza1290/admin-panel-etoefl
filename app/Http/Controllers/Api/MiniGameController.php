@@ -111,7 +111,7 @@ class MiniGameController extends Controller
                 'user_id' => $user->id,
                 'game_name' => 'Scrambled Sentence',
                 'game_type' => 'Challenge',
-                'score' => $request->is_true,
+                'score' => $request->is_true? 1 : 0,
             ]);
 
             return response()->json([
